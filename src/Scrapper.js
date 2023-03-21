@@ -1,5 +1,4 @@
 const puppeteer = require('puppeteer')
-// const fs = require('fs')
 const Licitacao = require('./Model/Licitacao')
 const date = require('./utils/date')
 
@@ -19,8 +18,6 @@ async function getLicitacoes (year) {
   // For unknown reasons, sometimes a dialog appears and disturb 
   // the process of scrapping, this page.on is to handle with this problem
   page.on('dialog', async dialog => {
-    //get alert message
-    console.log(dialog.message());
     //accept alert
     await dialog.accept();
  })
@@ -44,68 +41,55 @@ async function getLicitacoes (year) {
   const licitacoes = []
 
   if(await rows[0].$eval('td:nth-of-type(1)', element => element.innerText) === 'Não há informações.') {
-    console.log('Entrou no if')
     await browser.close()
-    console.log('Chama')
     return licitacoes
   } else {
 
     for(let i=0; i < rows.length - 1; i++) {
     
       const licitacao = new Licitacao(
+        // Unidade Gestora
         await rows[i].$eval('td:nth-of-type(1) a', element => element.innerText),
+        // Número do Processo ADM
         await rows[i].$eval('td:nth-of-type(2) a', element => element.innerText),
+        // Número do Processo
         await rows[i].$eval('td:nth-of-type(3) a', element => element.innerText),
+        // Modalidade
         await rows[i].$eval('td:nth-of-type(4) a', element => element.innerText),
+        // Número da Modalidade
         await rows[i].$eval('td:nth-of-type(5) a', element => element.innerText),
+        // Tipo
         await rows[i].$eval('td:nth-of-type(6) a', element => element.innerText),
+        // Situação do Processo
         await rows[i].$eval('td:nth-of-type(7) a', element => element.innerText),
-        // Date Julgamento
+        // Data Julgamento
         await rows[i].$eval('td:nth-of-type(8) a', element => element.innerText),
-        // Date Homologação
+        // Data Homologação
         await rows[i].$eval('td:nth-of-type(9) a', element => element.innerText),
+        // Objeto/Descrição
         await rows[i].$eval('td:nth-of-type(10) a', element => element.innerText),
+        // Valor
         await rows[i].$eval('td:nth-of-type(11) a', element => element.innerText),
+        // Link para Licitação
+        extractAndFormatLink(await rows[i].$eval('td:nth-of-type(12) a', element => element.getAttribute('href'))),
       )
       
       licitacao.dataDeJulgamento = date.convertStringToValidJsonDate(licitacao.dataDeJulgamento)
       licitacao.dataDeHomologacao = date.convertStringToValidJsonDate(licitacao.dataDeHomologacao)
-      
       licitacoes.push(JSON.stringify(licitacao))
-  
     }
 
   }
-  
-  // const json = JSON.stringify(
-  //   {
-  //     metadata: {
-  //       quantidadeDeLicitacoes: licitacoes.length
-  //     }, 
-  //     licitacoes: licitacoes
-  //   },
-  //   null,
-  //   '\t'
-  //   )
-
-  // fs.writeFile('./licitacoes.json', json, (err) => {
-  //   if (err)
-  //     console.log(err)
-  //   else {
-  //     console.log("File written successfully\n")
-  //   }
-  // })
-
+ 
   await browser.close()
 
-  // const dale = {
-  //   metadata: {
-  //     quantidadeDeLicitacoes: licitacoes.length
-  //   }, 
-  //   licitacoes: licitacoes
-  // }
-
   return licitacoes
+}
+
+function extractAndFormatLink(href) {
+  const link = href.split('montaURLDetalhamentoItem(\'')[1].split(`');`)[0]
+  const formatedLink = 'http://18.230.147.90' + link
+  return formatedLink
 }
 
 async function getYears () {

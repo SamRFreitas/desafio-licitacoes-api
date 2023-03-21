@@ -1,5 +1,5 @@
 class Licitacao {
-  constructor(unidadeGestora, numeroDoProcessoAdm, numeroDoProcesso, modalidade, numeroDaModalidade, tipo, situacaoDoProcesso, dataDeJulgamento, dataDeHomologacao, objeto, valor, anexos) {
+  constructor(unidadeGestora, numeroDoProcessoAdm, numeroDoProcesso, modalidade, numeroDaModalidade, tipo, situacaoDoProcesso, dataDeJulgamento, dataDeHomologacao, objeto, valor, link) {
     this.unidadeGestora = unidadeGestora
     this.numeroDoProcessoAdm = numeroDoProcessoAdm
     this.numeroDoProcesso = numeroDoProcesso
@@ -11,7 +11,7 @@ class Licitacao {
     this.dataDeHomologacao = dataDeHomologacao
     this.objeto = objeto
     this.valor = valor
-    this.anexos = anexos
+    this.link = link
   }
 }
 
